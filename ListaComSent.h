@@ -8,19 +8,22 @@ typedef struct lista Lista;
 Lista* initLista(void);
 
 // ============== Funcoes responsaveis da lista de Editores ==============
-void insereEditor(Lista *lista, char *nomeEditor);
+void insereLista(Lista *lista, char *palavra);
 
-void retiraEditor(Lista *lista, char *nomeEditor);
+void retiraLista(Lista *lista, char *palavra);
 
-void imprimeEditores(Lista *lista); // FUNCAO FEITA SÓ PRA AUXILIAR NO DESENVOLVIMENTO
+void imprimeLista(Lista *lista); // FUNCAO FEITA SÓ PRA AUXILIAR NO DESENVOLVIMENTO
 
-void destroiEditores(Lista *lista);
+void destroiLista(Lista *lista);
 
 // ============== Funcoes responsaveis da lista de Artigos ==============
-void inserePagina(Lista *lista, char *nome, char *outfile);
+void insereVoid(Lista *lista, void *item);
 
-void retiraPagina(Lista *lista, char *nome);
+int retiraVoid(Lista *lista, char *nome);
 
+void* retornaVoid(Lista *lista, char *nome);                // RETORNA UM PONTEIRO COM BASE NO NOME
+void* retornaPorInt(Lista *lista, int ind);                 // RETORNA UM PONTEIRO COM BASE NA POSICAO
+/*
 void insereContribuicao(Lista *lista, char *nomeContribuidor, char *tituloContribuicao, char *contribuicao);
 
 void retiraContribucao(Lista *lista, char *nome, char *nomeContribuidor, char *tituloContribuicao);
@@ -34,5 +37,14 @@ void caminho(Lista *lista, char *nomeOrigem, char *nomeDestino);
 void imprimePagina(Lista *lista, char *nome);
 
 void imprimeWided(Lista *lista);
+*/
+
+
+// ============== Funcoes AUXILIARES ==============
+void imprimeVoid(Lista *lista);
+
+void destroiVoid(Lista *lista);
+
+void destroiListasSecundarias(Lista *lista, int code);
 
 #endif
