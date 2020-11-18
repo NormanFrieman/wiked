@@ -30,14 +30,6 @@ void INSEREEDITOR(FILE *entrada, Lista *editores){
     insereEditor(editores, editor);
 }
 
-void RETIRAEDITOR(FILE *entrada, Lista *editores){
-    char editor[60];
-
-    fscanf(entrada, "%s", editor);
-    printf("RETIRA EDITOR %s\n", editor);
-    retiraEditor(editores, editor);
-}
-
 void INSERECONTRIBUICAO(FILE *entrada, Lista *artigos){
     char pagina[60], editor[60], arquivo[60];
     fscanf(entrada, "%s", pagina);
@@ -72,18 +64,26 @@ void INSERELINK(FILE *entrada, Lista *artigos){
     insereLink(artigos, paginaOrigem, paginaDestino);
 }
 
-void RETIRALINK(FILE *entrada){
+void RETIRALINK(FILE *entrada, Lista *artigos){
     char paginaOrigem[60], paginaDestino[60];
 
     fscanf(entrada, "%s", paginaOrigem);
     fscanf(entrada, "%s", paginaDestino);
+
+    printf("RETIRA LINK %s %s\n", paginaOrigem, paginaDestino);
+
+    retiraLink(artigos, paginaOrigem, paginaDestino);
 }
 
-void CAMINHO(FILE *entrada){
+void CAMINHO(FILE *entrada, Lista *artigos){
     char paginaOrigem[60], paginaDestino[60];
 
     fscanf(entrada, "%s", paginaOrigem);
     fscanf(entrada, "%s", paginaDestino);
+
+    printf("CAMINHO %s %s\n", paginaOrigem, paginaDestino);
+
+    caminho(artigos, paginaOrigem, paginaDestino);
 }
 
 void IMPRIMEPAGINA(FILE *entrada, Lista *artigos){
@@ -96,8 +96,10 @@ void IMPRIMEPAGINA(FILE *entrada, Lista *artigos){
     imprimePagina(artigos, pagina);
 }
 
-void IMPRIMEWIKED(){
-    printf("imprimewiked\n");
+void IMPRIMEWIKED(Lista *artigos){
+    printf("IMPRIME WIKED\n");
+
+    imprimeWiked(artigos);
 }
 
 void FIM(Lista *editores, Lista *artigos){
@@ -133,23 +135,21 @@ void interpretarComando(char *url, Lista *artigos, Lista *editores){
                 RETIRAPAGINA(entrada, artigos);
             }else if(strcmp("INSEREEDITOR", linha) == 0){       // IMPLEMENTADO
                 INSEREEDITOR(entrada, editores);
-            }else if(strcmp("RETIRAEDITOR", linha) == 0){       // IMPLEMENTADO
-                RETIRAEDITOR(entrada, editores);
             }else if(strcmp("INSERECONTRIBUICAO", linha) == 0){ // IMPLEMENTADO
                 INSERECONTRIBUICAO(entrada, artigos);
             }else if(strcmp("RETIRACONTRIBUICAO", linha) == 0){ // IMPLEMENTADO
                 RETIRACONTRIBUICAO(entrada, artigos);
             }else if(strcmp("INSERELINK", linha) == 0){         // IMPLEMENTADO
                 INSERELINK(entrada, artigos);
-            }else if(strcmp("RETIRALINK", linha) == 0){
-                RETIRALINK(entrada);
-            }else if(strcmp("CAMINHO", linha) == 0){
-                CAMINHO(entrada);
-            }else if(strcmp("IMPRIMEPAGINA", linha) == 0){
-                IMPRIMEPAGINA(entrada, artigos);                // IMPLEMENTADO
-            }else if(strcmp("IMPRIMEWIKED", linha) == 0){
-                IMPRIMEWIKED();
-            }else if(strcmp("FIM", linha) == 0){
+            }else if(strcmp("RETIRALINK", linha) == 0){         // IMPLEMENTADO
+                RETIRALINK(entrada, artigos);
+            }else if(strcmp("CAMINHO", linha) == 0){            // IMPLEMENTADO
+                CAMINHO(entrada, artigos);
+            }else if(strcmp("IMPRIMEPAGINA", linha) == 0){      // IMPLEMENTADO
+                IMPRIMEPAGINA(entrada, artigos);
+            }else if(strcmp("IMPRIMEWIKED", linha) == 0){       // IMPLEMENTADO
+                IMPRIMEWIKED(artigos);
+            }else if(strcmp("FIM", linha) == 0){                // IMPLEMENTADO
                 FIM(editores, artigos);
                 break;
             }else{

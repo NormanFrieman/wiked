@@ -1,1 +1,4 @@
 ERRO: nao existe a pagina Psicologia
+ERRO: nao existe a pagina Psicologia
+NAO HA CAMINHO DA Fisica para Artes
+HA CAMINHO DA Fisica para UFES

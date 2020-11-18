@@ -26,7 +26,7 @@ struct hist{
 };
 
 struct link{
-    char *nomeDestino;
+    char *nome;
     char *nomeArquivo;
 };
 
@@ -56,7 +56,7 @@ static char* output(char *inp){
     return path;
 }
 
-static void escreverLog(char *text, char *obj){
+static void escreverLog(char *text, char *obj1, char *obj2){
     FILE *logs;
 
     logs = fopen("saida/log_test.txt", "a");
@@ -64,12 +64,15 @@ static void escreverLog(char *text, char *obj){
     if(logs == NULL){
         printf("Nao foi possivel abrir o arquivo 'log.txt'\n");
     }else{
-        if(obj == NULL){
+        if(obj1 == NULL && obj2 == NULL){
             fprintf(logs, "%s\n", text);
-            printf("%s\n", text);
+            printf("***** %s *****\n", text);
+        }else if(obj1 != NULL && obj2 == NULL){
+            fprintf(logs, "%s %s\n", text, obj1);
+            printf("***** %s %s *****\n", text, obj1);
         }else{
-            fprintf(logs, "%s %s\n", text, obj);
-            printf("%s %s\n", text, obj);
+            fprintf(logs, "%s %s para %s\n", text, obj1, obj2);
+            printf("***** %s %s para %s *****\n", text, obj1, obj2);
         }
     }
 
@@ -92,11 +95,6 @@ Lista* iniciaLista(void){
 // ============== Funcoes responsaveis da lista de Editores ==============
 void insereEditor(Lista *lista, char *nomeEditor){
     insereLista(lista, nomeEditor);
-    imprimeEditores(lista);
-}
-
-void retiraEditor(Lista *lista, char *nomeEditor){
-    retiraLista(lista, nomeEditor);
     imprimeEditores(lista);
 }
 
@@ -133,7 +131,7 @@ void retiraPagina(Lista *lista, char *nome){
     int code = retiraVoid(lista, nome);
 
     if(code == 0){
-        escreverLog("ERRO: nao existe a pagina", nome);
+        escreverLog("ERRO: nao existe a pagina", nome, NULL);
         return;
     }
 
@@ -147,7 +145,7 @@ char* retornaNome(Artigo *art){                                          // auxi
 void insereContribuicao(Lista *lista, char *editor, char *pagina, char *contribuicao){
     Artigo *art = retornaVoid(lista, pagina);
     if(art == NULL){
-        escreverLog("ERRO: nao existe a pagina", pagina);
+        escreverLog("ERRO: nao existe a pagina", pagina, NULL);
         return;
     }
     char *url = input(contribuicao);
@@ -174,31 +172,29 @@ void insereContribuicao(Lista *lista, char *editor, char *pagina, char *contribu
 void retiraContribuicao(Lista *lista, char *editor, char *pagina, char *contribuicao){
     Artigo *art = retornaVoid(lista, pagina);
     if(art == NULL){
-        escreverLog("ERRO: nao existe a pagina", pagina);
+        escreverLog("ERRO: nao existe a pagina", pagina, NULL);
         return;
     }
     
     Contribuicao *contrib = retornaVoid(art->contribuicoes, contribuicao);
     if(contrib == NULL){
-        escreverLog("ERRO: nao existe a contribuicao", contribuicao);
+        escreverLog("ERRO: nao existe a contribuicao", contribuicao, NULL);
         return;
     }
 
     if(strcmp(contrib->editor, editor) != 0){
-        escreverLog("ERRO: editor nao tem direito de excluir esta contribuicao:", editor);
+        escreverLog("ERRO: editor nao tem direito de excluir esta contribuicao:", editor, NULL);
         return;
     }
 
-    int code = retiraVoid(art->contribuicoes, contribuicao);    
+    int code = retiraVoid(art->contribuicoes, contribuicao);
     
     if(code != 1){
-        escreverLog("ERRO: contribuicao nao removida / ERROR 500", contribuicao);
+        escreverLog("ERRO: contribuicao nao removida / ERROR 500", contribuicao, NULL);
         return;
     }
 
-    free(contrib->nome);
-    free(contrib->editor);
-    free(contrib->urlConteudo);
+    destroiContrib(contrib);
     free(contrib);
     art->quantContrib--;
 }
@@ -206,33 +202,83 @@ void retiraContribuicao(Lista *lista, char *editor, char *pagina, char *contribu
 void insereLink(Lista *lista, char *nomeOrigem, char *nomeDestino){
     Artigo *art1 = retornaVoid(lista, nomeOrigem);
     if(art1 == NULL){
-        escreverLog("ERRO: nao existe a pagina", nomeOrigem);
+        escreverLog("ERRO: nao existe a pagina", nomeOrigem, NULL);
         return;
     }
     
     Artigo *art2 = retornaVoid(lista, nomeDestino);
     if(art2 == NULL){
-        escreverLog("ERRO: nao existe a pagina", nomeDestino);
+        escreverLog("ERRO: nao existe a pagina", nomeDestino, NULL);
         return;
     }
 
     Link *link = (Link *)malloc(sizeof(Link));
 
-    link->nomeDestino = strdup(nomeDestino);
+    link->nome = strdup(nomeDestino);
     link->nomeArquivo = strdup(art2->outfile);
     
     insereVoid(art1->links, link);
     art1->quantLinks++;
 }
-/*
-void retiraLink(Lista *lista, char *nomeOrigem, char *nomeDestino);
 
-void caminho(Lista *lista, char *nomeOrigem, char *nomeDestino);
-*/
+void retiraLink(Lista *lista, char *nomeOrigem, char *nomeDestino){
+    Artigo *art1 = retornaVoid(lista, nomeOrigem);
+    if(art1 == NULL){
+        escreverLog("ERRO: nao existe a pagina", nomeOrigem, NULL);
+        return;
+    }
+    
+    Artigo *art2 = retornaVoid(lista, nomeDestino);
+    if(art2 == NULL){
+        escreverLog("ERRO: nao existe a pagina", nomeDestino, NULL);
+        return;
+    }
+
+    Link *link = retornaVoid(art1->links, nomeDestino);
+
+    if(link == NULL){
+        escreverLog("ERRO: nao existe o link para a pagina", nomeDestino, NULL);
+        return;
+    }
+
+    int code = retiraVoid(art1->links, nomeDestino);
+    
+    if(code != 1){
+        escreverLog("ERRO: link nao removida / ERROR 500", nomeDestino, NULL);
+        return;
+    }
+
+    destroiLink(link);
+    free(link);
+    art1->quantLinks--;
+}
+
+void caminho(Lista *lista, char *nomeOrigem, char *nomeDestino){
+    Artigo *art1 = retornaVoid(lista, nomeOrigem);
+    if(art1 == NULL){
+        escreverLog("ERRO: nao existe a pagina", nomeOrigem, NULL);
+        return;
+    }
+    
+    Artigo *art2 = retornaVoid(lista, nomeDestino);
+    if(art2 == NULL){
+        escreverLog("ERRO: nao existe a pagina", nomeDestino, NULL);
+        return;
+    }
+
+    Link *link = retornaVoid(art1->links, nomeDestino);
+    
+    if(link == NULL){
+        escreverLog("NAO HA CAMINHO DA", nomeOrigem, nomeDestino);
+    }else{
+        escreverLog("HA CAMINHO DA", nomeOrigem, nomeDestino);
+    }
+}
+
 void imprimePagina(Lista *lista, char *pagina){
     Artigo *art = retornaVoid(lista, pagina);
     if(art == NULL){
-        escreverLog("ERRO: nao existe a pagina", pagina);
+        escreverLog("ERRO: nao existe a pagina", pagina, NULL);
         return;
     }
     Historico *historico;
@@ -246,7 +292,7 @@ void imprimePagina(Lista *lista, char *pagina){
     saida = fopen(url, "w");
 
     if(saida == NULL){
-        escreverLog("ERRO: criacao de um novo txt inconcluido", NULL);
+        escreverLog("ERRO: criacao de um novo txt inconcluido", NULL, NULL);
     }else{
         fprintf(saida, "%s\n\n", art->nome);
         fprintf(saida, "--> Historico de contribuicoes\n");
@@ -259,7 +305,7 @@ void imprimePagina(Lista *lista, char *pagina){
         fprintf(saida, "\n--> Links\n");
         for(int i = 0; i < art->quantLinks; i++){
             links = retornaPorInt(art->links, i);
-            fprintf(saida, "%s %s\n", links->nomeDestino, links->nomeArquivo);
+            fprintf(saida, "%s %s\n", links->nome, links->nomeArquivo);
         }
 
         fprintf(saida, "\n--> Textos\n\n");
@@ -270,7 +316,7 @@ void imprimePagina(Lista *lista, char *pagina){
             entrada = fopen(contribuicao->urlConteudo, "r");
 
             if(entrada == NULL){
-                escreverLog("ERRO: impressao falhou da contribuicao %s", contribuicao->nome);
+                escreverLog("ERRO: impressao falhou da contribuicao %s", contribuicao->nome, NULL);
             }else{
                 while(!feof(entrada)){
                     fscanf(entrada, "%c", &letra);
@@ -288,7 +334,15 @@ void imprimePagina(Lista *lista, char *pagina){
     free(url);
 }
 
-//void imprimeWided(Lista *lista);
+void imprimeWiked(Lista *lista){
+    int i = 0;
+    Artigo *art;
+
+    for(art = retornaPorInt(lista, 0); art != NULL; i++){
+        imprimePagina(lista, art->nome);
+        art = retornaPorInt(lista, i+1);
+    }
+}
 
 
 
@@ -309,7 +363,7 @@ void destroiHist(Historico *hist){                  // code = 1
 }
 
 void destroiLink(Link *link){                       // code = 2
-    free(link->nomeDestino);
+    free(link->nome);
     free(link->nomeArquivo);
 }
 

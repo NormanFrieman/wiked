@@ -14,8 +14,6 @@ Lista* iniciaLista(void);
 // ============== Funcoes responsaveis da lista de Editores ==============
 void insereEditor(Lista *lista, char *nomeEditor);
 
-void retiraEditor(Lista *lista, char *nomeEditor);
-
 void destroiEditores(Lista *lista);
 
 // ============== Funcoes responsaveis da lista de Artigos ==============
@@ -28,14 +26,14 @@ void insereContribuicao(Lista *lista, char *editor, char *pagina, char *contribu
 void retiraContribuicao(Lista *lista, char *editor, char *pagina, char *contribuicao);
 
 void insereLink(Lista *lista, char *nomeOrigem, char *nomeDestino);
-/*
+
 void retiraLink(Lista *lista, char *nomeOrigem, char *nomeDestino);
 
 void caminho(Lista *lista, char *nomeOrigem, char *nomeDestino);
-*/
+
 void imprimePagina(Lista *lista, char *pagina);
 
-//void imprimeWided(Lista *lista);
+void imprimeWiked(Lista *lista);
 
 
 // ============== Funcoes AUXILIARES ==============
