@@ -30,7 +30,7 @@ void INSEREEDITOR(FILE *entrada, Lista *editores){
     insereEditor(editores, editor);
 }
 
-void INSERECONTRIBUICAO(FILE *entrada, Lista *artigos){
+void INSERECONTRIBUICAO(FILE *entrada, Lista *artigos, Lista *editores){
     char pagina[60], editor[60], arquivo[60];
     fscanf(entrada, "%s", pagina);
     fscanf(entrada, "%s", editor);
@@ -38,7 +38,7 @@ void INSERECONTRIBUICAO(FILE *entrada, Lista *artigos){
 
     printf("INSERE CONTRIBUICAO %s %s\n", pagina, editor);
 
-    insereContribuicao(artigos, editor, pagina, arquivo);
+    insereContribuicao(artigos, editores, editor, pagina, arquivo);
 }
 
 void RETIRACONTRIBUICAO(FILE *entrada, Lista *artigos){
@@ -103,6 +103,8 @@ void IMPRIMEWIKED(Lista *artigos){
 }
 
 void FIM(Lista *editores, Lista *artigos){
+    printf("FIM\n");
+
     destroiEditores(editores);
     destroiTudo(artigos);
 }
@@ -136,14 +138,14 @@ void interpretarComando(char *url, Lista *artigos, Lista *editores){
             }else if(strcmp("INSEREEDITOR", linha) == 0){       // IMPLEMENTADO
                 INSEREEDITOR(entrada, editores);
             }else if(strcmp("INSERECONTRIBUICAO", linha) == 0){ // IMPLEMENTADO
-                INSERECONTRIBUICAO(entrada, artigos);
+                INSERECONTRIBUICAO(entrada, artigos, editores);
             }else if(strcmp("RETIRACONTRIBUICAO", linha) == 0){ // IMPLEMENTADO
                 RETIRACONTRIBUICAO(entrada, artigos);
             }else if(strcmp("INSERELINK", linha) == 0){         // IMPLEMENTADO
                 INSERELINK(entrada, artigos);
             }else if(strcmp("RETIRALINK", linha) == 0){         // IMPLEMENTADO
                 RETIRALINK(entrada, artigos);
-            }else if(strcmp("CAMINHO", linha) == 0){            // IMPLEMENTADO
+            }else if(strcmp("CAMINHO", linha) == 0){            // ~~~~ IMPLEMENTADO ~~~~
                 CAMINHO(entrada, artigos);
             }else if(strcmp("IMPRIMEPAGINA", linha) == 0){      // IMPLEMENTADO
                 IMPRIMEPAGINA(entrada, artigos);

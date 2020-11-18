@@ -6,7 +6,7 @@ Maria c2.txt
 Pedro c3.txt
 
 --> Links
-UFES ufes.txt
+Artes artes.txt
 
 --> Textos
 

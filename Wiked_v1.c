@@ -3,6 +3,10 @@
 #include "string.h"
 #include "Wiked_v1.h"
 
+typedef struct contrib Contribuicao;
+typedef struct hist Historico;
+typedef struct link Link;
+
 struct artigo{
     char *nome;
     char *outfile;
@@ -83,6 +87,22 @@ static void imprimeEditores(Lista *lista){
     printf("EDITORES:\n");
     imprimeLista(lista);
 }
+
+static void destroiContrib(Contribuicao *contrib){
+    free(contrib->nome);
+    free(contrib->editor);
+    free(contrib->urlConteudo);
+}
+
+static void destroiHist(Historico *hist){
+    free(hist->editor);
+    free(hist->arquivo);
+}
+
+static void destroiLink(Link *link){
+    free(link->nome);
+    free(link->nomeArquivo);
+}
 // ================================================
 
 
@@ -94,6 +114,13 @@ Lista* iniciaLista(void){
 
 // ============== Funcoes responsaveis da lista de Editores ==============
 void insereEditor(Lista *lista, char *nomeEditor){
+    char *nome = retornaLista(lista, nomeEditor);
+
+    if(nome != NULL){
+        escreverLog("ERRO: ja existe o editor", nomeEditor, NULL);
+        return;
+    }
+
     insereLista(lista, nomeEditor);
     imprimeEditores(lista);
 }
@@ -104,7 +131,13 @@ void destroiEditores(Lista *lista){
 
 // ============== Funcoes responsaveis da lista de Artigos ==============
 void inserePagina(Lista *lista, char *nome, char *outfile){
-    Artigo *novoArtigo = (Artigo *)malloc(sizeof(Artigo));
+    Artigo *novoArtigo = retornaVoid(lista, nome);
+    if(novoArtigo != NULL){
+        escreverLog("ERRO: ja existe a pagina", nome, NULL);
+        return;
+    }
+    
+    novoArtigo = (Artigo *)malloc(sizeof(Artigo));
 
     novoArtigo->nome = strdup(nome);
     novoArtigo->outfile = strdup(outfile);
@@ -128,26 +161,59 @@ void inserePagina(Lista *lista, char *nome, char *outfile){
 */
 void retiraPagina(Lista *lista, char *nome){
     Artigo *art = retornaVoid(lista, nome);
-    int code = retiraVoid(lista, nome);
-
-    if(code == 0){
+    if(art == NULL){
         escreverLog("ERRO: nao existe a pagina", nome, NULL);
+        return;
+    }
+
+    Link *link;
+
+    Artigo *artAux = retornaPorInt(lista, 0);
+
+    for(int i = 0; artAux != NULL; i++){
+        if(strcmp(artAux->nome, nome) != 0){
+            link = retornaPorInt(artAux->links, 0);
+
+            if(link != NULL){                
+                for(int j = 0; link != NULL; j++){
+                    if(strcmp(link->nome, nome) == 0){
+                        retiraLink(lista, artAux->nome, nome);
+                    }
+                    
+                    link = retornaPorInt(artAux->links, j+1);
+                }
+            }
+        }
+
+        artAux = retornaPorInt(lista, i+1);
+    }
+
+    int code = retiraVoid(lista, nome);
+    if(code == 0){
+        escreverLog("ERRO: pagina nao removida / ERROR 500", nome, NULL);
         return;
     }
 
     destroiUnitario(art);
 }
+
 char* retornaNome(Artigo *art){                                          // auxiliar na remocao do artigo
     return art->nome;
 }
 
 
-void insereContribuicao(Lista *lista, char *editor, char *pagina, char *contribuicao){
+void insereContribuicao(Lista *lista, Lista *editores, char *editor, char *pagina, char *contribuicao){
     Artigo *art = retornaVoid(lista, pagina);
     if(art == NULL){
         escreverLog("ERRO: nao existe a pagina", pagina, NULL);
         return;
     }
+    char *nomeEditor = retornaLista(editores, editor);
+    if(nomeEditor == NULL){
+        escreverLog("ERRO: nao existe o editor", pagina, NULL);
+        return;
+    }
+
     char *url = input(contribuicao);
     
     Contribuicao *novaContrib = (Contribuicao *)malloc(sizeof(Contribuicao));
@@ -227,7 +293,7 @@ void retiraLink(Lista *lista, char *nomeOrigem, char *nomeDestino){
         escreverLog("ERRO: nao existe a pagina", nomeOrigem, NULL);
         return;
     }
-    
+
     Artigo *art2 = retornaVoid(lista, nomeDestino);
     if(art2 == NULL){
         escreverLog("ERRO: nao existe a pagina", nomeDestino, NULL);
@@ -242,7 +308,7 @@ void retiraLink(Lista *lista, char *nomeOrigem, char *nomeDestino){
     }
 
     int code = retiraVoid(art1->links, nomeDestino);
-    
+
     if(code != 1){
         escreverLog("ERRO: link nao removida / ERROR 500", nomeDestino, NULL);
         return;
@@ -268,11 +334,12 @@ void caminho(Lista *lista, char *nomeOrigem, char *nomeDestino){
 
     Link *link = retornaVoid(art1->links, nomeDestino);
     
-    if(link == NULL){
-        escreverLog("NAO HA CAMINHO DA", nomeOrigem, nomeDestino);
-    }else{
-        escreverLog("HA CAMINHO DA", nomeOrigem, nomeDestino);
+    if(link != NULL){
+        escreverLog("HA CAMINHO DIRETO DA PAGINA", nomeOrigem, nomeDestino);
+        return;
     }
+
+    escreverLog("NAO SEI SE HA OU NAO CAMINHO INDIRETO DA PAGINA", nomeOrigem, nomeDestino);
 }
 
 void imprimePagina(Lista *lista, char *pagina){
@@ -335,10 +402,12 @@ void imprimePagina(Lista *lista, char *pagina){
 }
 
 void imprimeWiked(Lista *lista){
+    imprimePaginas(lista);
     int i = 0;
     Artigo *art;
 
     for(art = retornaPorInt(lista, 0); art != NULL; i++){
+        printf("%s\n", art->outfile);
         imprimePagina(lista, art->nome);
         art = retornaPorInt(lista, i+1);
     }
@@ -351,26 +420,43 @@ void destroiTudo(Lista *lista){
     destroiVoid(lista);
 }
 
-void destroiContrib(Contribuicao *contrib){         // code = 0
-    free(contrib->nome);
-    free(contrib->editor);
-    free(contrib->urlConteudo);
-}
-
-void destroiHist(Historico *hist){                  // code = 1
-    free(hist->editor);
-    free(hist->arquivo);
-}
-
-void destroiLink(Link *link){                       // code = 2
-    free(link->nome);
-    free(link->nomeArquivo);
-}
-
 void destroiUnitario(Artigo *art){
-    destroiListasSecundarias(art->contribuicoes, 0);
-    destroiListasSecundarias(art->historico, 1);
-    destroiListasSecundarias(art->links, 2);
+    Contribuicao *contrib;
+    Historico *hist;
+    Link *link;
+    
+    contrib = retornaPorInt(art->contribuicoes, 0);
+    if(contrib != NULL){
+        for(int i = 0; contrib != NULL; i++){
+            destroiContrib(contrib);
+
+            contrib = retornaPorInt(art->contribuicoes, i+1);
+        }
+
+        destroiListasSecundarias(art->contribuicoes);
+    }
+
+    hist = retornaPorInt(art->historico, 0);
+    if(hist != NULL){
+        for(int i = 0; hist != NULL; i++){
+            destroiHist(hist);
+
+            hist = retornaPorInt(art->historico, i+1);
+        }
+
+        destroiListasSecundarias(art->historico);
+    }
+
+    link = retornaPorInt(art->links, 0);
+    if(link != NULL){
+        for(int i = 0; link != NULL; i++){
+            destroiLink(link);
+
+            link = retornaPorInt(art->links, i+1);
+        }
+
+        destroiListasSecundarias(art->links);
+    }
 
     free(art->nome);
     free(art->outfile);

@@ -69,6 +69,29 @@ void retiraLista(Lista *lista, char *palavra){
     free(p);
 }
 
+char* retornaLista(Lista *lista, char *palavra){
+    Celula *p;
+    p = lista->Prim;
+
+    if(lista->Prim == NULL && lista->Ult == NULL){
+        return NULL;
+    }
+
+    while(p != NULL){
+        if(strcmp(p->item, palavra) != 0){
+            p = p->prox;
+        }else{
+            break;
+        }
+    }
+
+    if(p == NULL){
+        return NULL;
+    }
+
+    return p->item;
+}
+
 void imprimeLista(Lista *lista){
     Celula *p;
 
@@ -229,19 +252,12 @@ void destroiVoid(Lista *lista){
     free(lista);
 }
 
-void destroiListasSecundarias(Lista *lista, int code){
+void destroiListasSecundarias(Lista *lista){
     Celula *p = lista->Prim;
     Celula *aux = NULL;
 
     while(p != NULL){
         aux = p->prox;
-        if(code == 0){
-            destroiContrib(p->item);
-        }else if(code == 1){
-            destroiHist(p->item);
-        }else{
-            destroiLink(p->item);
-        }
         free(p->item);
         free(p);
         p = aux;
