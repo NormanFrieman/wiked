@@ -21,7 +21,6 @@ struct artigo{
 struct contrib{
     char *nome;
     char *editor;
-    char *urlConteudo;
 };
 
 struct hist{
@@ -51,7 +50,7 @@ static char* input(char *inp){
 }
 
 static char* output(char *inp){
-    char aux[60] = "saida_test/";
+    char aux[60] = "saida/";
     char *path;
     strcat(aux, inp);
 
@@ -63,7 +62,7 @@ static char* output(char *inp){
 static void escreverLog(char *text, char *obj1, char *obj2){
     FILE *logs;
 
-    logs = fopen("saida/log_test.txt", "a");
+    logs = fopen("saida/log.txt", "a");
 
     if(logs == NULL){
         printf("Nao foi possivel abrir o arquivo 'log.txt'\n");
@@ -91,7 +90,6 @@ static void imprimeEditores(Lista *lista){
 static void destroiContrib(Contribuicao *contrib){
     free(contrib->nome);
     free(contrib->editor);
-    free(contrib->urlConteudo);
 }
 
 static void destroiHist(Historico *hist){
@@ -102,6 +100,35 @@ static void destroiHist(Historico *hist){
 static void destroiLink(Link *link){
     free(link->nome);
     free(link->nomeArquivo);
+}
+
+static int verificaCaminho(Lista *lista, Artigo *art, char *nomeDestino, Lista *listaDeRastro){
+    Link *link;
+    Artigo *artAuxiliar;
+    int code = 0;
+
+    for(int i = 0; i < art->quantLinks; i++){
+        link = retornaPorInt(art->links, i);
+        
+        char *checagem = retornaLista(listaDeRastro, link->nome);
+
+        if(checagem == NULL){
+            if(strcmp(link->nome, nomeDestino) == 0){
+                return 1;
+            }
+
+            insereLista(listaDeRastro, link->nome);
+
+            artAuxiliar = retornaVoid(lista, link->nome);
+            code = verificaCaminho(lista, artAuxiliar, nomeDestino, listaDeRastro);
+            
+            if(code == 1){
+                return 1;
+            }
+        }
+    }
+
+    return 0;
 }
 // ================================================
 
@@ -127,6 +154,7 @@ void insereEditor(Lista *lista, char *nomeEditor){
 
 void destroiEditores(Lista *lista){
     destroiLista(lista);
+    free(lista);
 }
 
 // ============== Funcoes responsaveis da lista de Artigos ==============
@@ -213,16 +241,19 @@ void insereContribuicao(Lista *lista, Lista *editores, char *editor, char *pagin
         escreverLog("ERRO: nao existe o editor", pagina, NULL);
         return;
     }
-
-    char *url = input(contribuicao);
     
+    Contribuicao *testContrib = retornaVoid(art->contribuicoes, contribuicao);
+    if(testContrib != NULL){
+        escreverLog("ERRO: ja existe na pagina a contribuicao", contribuicao, NULL);
+        return;
+    }
+
     Contribuicao *novaContrib = (Contribuicao *)malloc(sizeof(Contribuicao));
     Historico *novoHist = (Historico *)malloc(sizeof(Historico));
     
     
     novaContrib->nome = strdup(contribuicao);
     novaContrib->editor = strdup(editor);
-    novaContrib->urlConteudo = strdup(url);
 
     novoHist->editor = strdup(editor);
     novoHist->arquivo = strdup(contribuicao);
@@ -231,8 +262,6 @@ void insereContribuicao(Lista *lista, Lista *editores, char *editor, char *pagin
     insereVoid(art->contribuicoes, novaContrib);
     art->quantContrib++;
     art->quantEdit++;
-
-    free(url);
 }
 
 void retiraContribuicao(Lista *lista, char *editor, char *pagina, char *contribuicao){
@@ -276,6 +305,11 @@ void insereLink(Lista *lista, char *nomeOrigem, char *nomeDestino){
     if(art2 == NULL){
         escreverLog("ERRO: nao existe a pagina", nomeDestino, NULL);
         return;
+    }
+
+    Link *test = retornaVoid(art1->links, nomeDestino);
+    if(test != NULL){
+        escreverLog("ERRO: ja existe um link para a pagina", nomeDestino, NULL);
     }
 
     Link *link = (Link *)malloc(sizeof(Link));
@@ -339,7 +373,19 @@ void caminho(Lista *lista, char *nomeOrigem, char *nomeDestino){
         return;
     }
 
-    escreverLog("NAO SEI SE HA OU NAO CAMINHO INDIRETO DA PAGINA", nomeOrigem, nomeDestino);
+    Lista *listaDeRastro = initLista();     // essa lista vai armazenar o nome de todos os artigos que foram verificados
+    insereLista(listaDeRastro, art1->nome);
+
+    int code = verificaCaminho(lista, art1, nomeDestino, listaDeRastro);
+
+    destroiLista(listaDeRastro);
+    free(listaDeRastro);
+
+    if(code == 1){
+        escreverLog("HA CAMINHO INDIRETO DA PAGINA", nomeOrigem, nomeDestino);
+    }else{
+        escreverLog("NAO HA CAMINHO DA PAGINA", nomeOrigem, nomeDestino);
+    }
 }
 
 void imprimePagina(Lista *lista, char *pagina){
@@ -379,8 +425,9 @@ void imprimePagina(Lista *lista, char *pagina){
         for(int i = 0; i < art->quantContrib; i++){
             contribuicao = retornaPorInt(art->contribuicoes, i);
             fprintf(saida, "-------- %s (%s) --------\n\n", contribuicao->nome, contribuicao->editor);
-
-            entrada = fopen(contribuicao->urlConteudo, "r");
+            
+            char *url = input(contribuicao->nome);
+            entrada = fopen(url, "r");
 
             if(entrada == NULL){
                 escreverLog("ERRO: impressao falhou da contribuicao %s", contribuicao->nome, NULL);
@@ -392,6 +439,8 @@ void imprimePagina(Lista *lista, char *pagina){
             }
 
             fprintf(saida, "\n\n");
+
+            free(url);
 
             fclose(entrada);
         }
@@ -433,7 +482,7 @@ void destroiUnitario(Artigo *art){
             contrib = retornaPorInt(art->contribuicoes, i+1);
         }
 
-        destroiListasSecundarias(art->contribuicoes);
+        destroiLista(art->contribuicoes);
     }
 
     hist = retornaPorInt(art->historico, 0);
@@ -444,7 +493,7 @@ void destroiUnitario(Artigo *art){
             hist = retornaPorInt(art->historico, i+1);
         }
 
-        destroiListasSecundarias(art->historico);
+        destroiLista(art->historico);
     }
 
     link = retornaPorInt(art->links, 0);
@@ -455,7 +504,7 @@ void destroiUnitario(Artigo *art){
             link = retornaPorInt(art->links, i+1);
         }
 
-        destroiListasSecundarias(art->links);
+        destroiLista(art->links);
     }
 
     free(art->nome);

@@ -130,32 +130,35 @@ void interpretarComando(char *url, Lista *artigos, Lista *editores){
     }else{
         while(!feof(entrada)){
             fscanf(entrada, "%s", linha);
-
-            if(strcmp("INSEREPAGINA", linha) == 0){             // IMPLEMENTADO
-                INSEREPAGINA(entrada, artigos);
-            }else if(strcmp("RETIRAPAGINA", linha) == 0){       // IMPLEMENTADO
-                RETIRAPAGINA(entrada, artigos);
-            }else if(strcmp("INSEREEDITOR", linha) == 0){       // IMPLEMENTADO
-                INSEREEDITOR(entrada, editores);
-            }else if(strcmp("INSERECONTRIBUICAO", linha) == 0){ // IMPLEMENTADO
-                INSERECONTRIBUICAO(entrada, artigos, editores);
-            }else if(strcmp("RETIRACONTRIBUICAO", linha) == 0){ // IMPLEMENTADO
-                RETIRACONTRIBUICAO(entrada, artigos);
-            }else if(strcmp("INSERELINK", linha) == 0){         // IMPLEMENTADO
-                INSERELINK(entrada, artigos);
-            }else if(strcmp("RETIRALINK", linha) == 0){         // IMPLEMENTADO
-                RETIRALINK(entrada, artigos);
-            }else if(strcmp("CAMINHO", linha) == 0){            // ~~~~ IMPLEMENTADO ~~~~
-                CAMINHO(entrada, artigos);
-            }else if(strcmp("IMPRIMEPAGINA", linha) == 0){      // IMPLEMENTADO
-                IMPRIMEPAGINA(entrada, artigos);
-            }else if(strcmp("IMPRIMEWIKED", linha) == 0){       // IMPLEMENTADO
-                IMPRIMEWIKED(artigos);
-            }else if(strcmp("FIM", linha) == 0){                // IMPLEMENTADO
-                FIM(editores, artigos);
-                break;
+            if(linha[0] == -17){
+                printf("\nCARACTER MISTERIOSO IDENTIFICADO: %c\n\n", linha[0]);
             }else{
-                printf("Funcao %s nao suportada nesta versao do wikED!\n", linha);
+                if(strcmp("INSEREPAGINA", linha) == 0){             // IMPLEMENTADO
+                    INSEREPAGINA(entrada, artigos);
+                }else if(strcmp("RETIRAPAGINA", linha) == 0){       // IMPLEMENTADO
+                    RETIRAPAGINA(entrada, artigos);
+                }else if(strcmp("INSEREEDITOR", linha) == 0){       // IMPLEMENTADO
+                    INSEREEDITOR(entrada, editores);
+                }else if(strcmp("INSERECONTRIBUICAO", linha) == 0){ // IMPLEMENTADO
+                    INSERECONTRIBUICAO(entrada, artigos, editores);
+                }else if(strcmp("RETIRACONTRIBUICAO", linha) == 0){ // IMPLEMENTADO
+                    RETIRACONTRIBUICAO(entrada, artigos);
+                }else if(strcmp("INSERELINK", linha) == 0){         // IMPLEMENTADO
+                    INSERELINK(entrada, artigos);
+                }else if(strcmp("RETIRALINK", linha) == 0){         // IMPLEMENTADO
+                    RETIRALINK(entrada, artigos);
+                }else if(strcmp("CAMINHO", linha) == 0){            // IMPLEMENTADO
+                    CAMINHO(entrada, artigos);
+                }else if(strcmp("IMPRIMEPAGINA", linha) == 0){      // IMPLEMENTADO
+                    IMPRIMEPAGINA(entrada, artigos);
+                }else if(strcmp("IMPRIMEWIKED", linha) == 0){       // IMPLEMENTADO
+                    IMPRIMEWIKED(artigos);
+                }else if(strcmp("FIM", linha) == 0){                // IMPLEMENTADO
+                    FIM(editores, artigos);
+                    break;
+                }else{
+                    printf("Funcao %s nao suportada nesta versao do wikED!\n", linha);
+                }
             }
         }
     }
@@ -165,7 +168,7 @@ void interpretarComando(char *url, Lista *artigos, Lista *editores){
 void limparTxts(){
     FILE *logs;
 
-    logs = fopen("saida/log_test.txt", "w");
+    logs = fopen("saida/log.txt", "w");
 
     fclose(logs);
 }

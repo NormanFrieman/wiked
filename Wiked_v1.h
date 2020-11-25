@@ -51,5 +51,4 @@ void destroiUnitario(Artigo *art);
 -Retirar uma contribuição que não existe;
 -Editor tentando apagar contribuição que não é dele;
 -Estabelecer link entre páginas inexistentes 
--Editor tentando apagar contribuição que não é dele;
 */

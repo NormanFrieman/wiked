@@ -102,7 +102,7 @@ void imprimeLista(Lista *lista){
 
 void destroiLista(Lista *lista){
     Celula *p = lista->Prim;
-    Celula *aux;
+    Celula *aux = NULL;
 
     while(p != NULL){
         aux = p->prox;
@@ -110,8 +110,6 @@ void destroiLista(Lista *lista){
         free(p);
         p = aux;
     }
-
-    free(lista);
 }
 
 // ============== Funcoes responsaveis da lista de Artigos ==============
@@ -212,20 +210,6 @@ void* retornaPorInt(Lista *lista, int ind){
 
     return p->item;
 }
-/*
-void insereContribuicao(Lista *lista, char *nomeContribuidor, char *tituloContribuicao, char *contribuicao);
-
-void retiraContribucao(Lista *lista, char *nome, char *nomeContribuidor, char *tituloContribuicao);
-
-void insereLink(Lista *lista, char *nomeOrigem, char *nomeDestino);
-
-void retiraLink(Lista *lista, char *nomeOrigem, char *nomeDestino);
-
-void caminho(Lista *lista, char *nomeOrigem, char *nomeDestino);
-
-void imprimePagina(Lista *lista, char *nome);
-
-void imprimeWided(Lista *lista);*/
 
 
 
@@ -250,16 +234,4 @@ void destroiVoid(Lista *lista){
     }
     
     free(lista);
-}
-
-void destroiListasSecundarias(Lista *lista){
-    Celula *p = lista->Prim;
-    Celula *aux = NULL;
-
-    while(p != NULL){
-        aux = p->prox;
-        free(p->item);
-        free(p);
-        p = aux;
-    }
 }

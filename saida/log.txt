@@ -1,3 +1,4 @@
-ERRO: não existe a pagina Psicologia
-HA CAMINHO DA PAGINA UFES PARA Fisica
-NAO HA CAMINHO DA PAGINA Fisica PARA UFES
+ERRO: nao existe a pagina Psicologia
+ERRO: ja existe na pagina a contribuicao c1.txt
+HA CAMINHO DIRETO DA PAGINA UFES para Fisica
+NAO HA CAMINHO DA PAGINA Fisica para UFES

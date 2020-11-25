@@ -34,6 +34,4 @@ void imprimeVoid(Lista *lista);
 
 void destroiVoid(Lista *lista);
 
-void destroiListasSecundarias(Lista *lista);
-
 #endif
