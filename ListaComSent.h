@@ -5,9 +5,6 @@
 
 typedef struct lista Lista;
 
-Lista* initLista(void);
-
-
 // ============== Funcoes responsaveis da lista de Editores ==============
 void insereLista(Lista *lista, char *palavra);
 
@@ -26,10 +23,13 @@ void insereVoid(Lista *lista, void *item);
 int retiraVoid(Lista *lista, char *nome);
 
 void* retornaVoid(Lista *lista, char *nome);                // RETORNA UM PONTEIRO COM BASE NO NOME
+
 void* retornaPorInt(Lista *lista, int ind);                 // RETORNA UM PONTEIRO COM BASE NA POSICAO
 
 
 // ============== Funcoes AUXILIARES ==============
+Lista* initLista(void);
+
 void imprimeVoid(Lista *lista);
 
 void destroiVoid(Lista *lista);

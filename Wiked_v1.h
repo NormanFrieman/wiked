@@ -6,8 +6,6 @@
 
 typedef struct artigo Artigo;
 
-Lista* iniciaLista(void);
-
 // ============== Funcoes responsaveis da lista de Editores ==============
 void insereEditor(Lista *lista, char *nomeEditor);
 
@@ -32,11 +30,13 @@ void imprimePagina(Lista *lista, char *pagina);
 
 void imprimeWiked(Lista *lista);
 
+void destroiTudo(Lista *lista);
+
 
 // ============== Funcoes AUXILIARES ==============
-char* retornaNome(Artigo *art);
+Lista* iniciaLista(void);
 
-void destroiTudo(Lista *lista);
+char* retornaNome(Artigo *art);
 
 void destroiUnitario(Artigo *art);
 
